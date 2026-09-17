@@ -12,3 +12,4 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Exercise 1:
