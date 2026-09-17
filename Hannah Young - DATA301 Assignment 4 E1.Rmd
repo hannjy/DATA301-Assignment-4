@@ -1,0 +1,14 @@
+---
+title: "DATA301 Assignment 4"
+subtitle: "Exercise 1"
+author: "Hannah Young, 300662592"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
