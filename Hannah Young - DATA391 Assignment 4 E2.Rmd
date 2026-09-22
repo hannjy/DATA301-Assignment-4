@@ -13,3 +13,92 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Exercise 2:
+
+Consider the ausbeer data from the fpp2 R package: quarterly beer production in
+Australia. 
+
+```{r, message=FALSE}
+#install.packages("fpp2")
+#install.packages("tsibble")
+library(tsibble)
+library(lubridate)
+library(patchwork)
+library(fpp2)
+library(pander)
+
+data("ausbeer")
+summary(ausbeer)
+
+class(ausbeer)
+start(ausbeer); end(ausbeer); frequency(ausbeer)
+#monthplot(ausbeer)
+
+head(ausbeer,8)
+```
+
+This is an ordered, discrete time series. The order of the data matters, as it is recorded yearly in quarters and is equally spaced. Regular sampling. 
+
+
+
+
+### 1. What is the frequency of the series? How can you determine this from the data
+and/or the time-series plot?
+
+The frequency is four. Data was collected four times every year from 1956 to 2010 in each quarter. We can visualize this in the 'monthly' plot of the data, where there are four trends visualized. 
+
+```{r}
+pander(ausbeer)
+```
+
+
+### 2. Describe the overall behavior of the series. Is there evidence of a long-term trend?
+
+```{r}
+plot(ausbeer,
+     xlab = "Time",
+     ylab = "Total Quarterly Production of Beer")
+
+average_trend <- stats::filter(ausbeer, rep(1/4, 4), sides = 2)
+lines(average_trend, col = "red", lwd = 2)
+
+legend(
+  "bottomright",
+  legend = c("Trend of entire database", "Moving average"),
+  col = c("black","red"),
+  lwd = c(1,2),
+  bty = "n"
+)
+```
+
+Until around 1975 there was a positive, increasing trend in the data where the total quarterly production of beer increased throughout the years despite differences in individual quarters. However this increasing trend stopped and plateaued slightly from ~1975 to 1990. From 1990, the total quarterly production of beer has started to decrease slightly. 
+\
+
+Because of the differing directions, there is no solid evidence of a long-term trend. 
+\
+<br>
+
+### 3. Is there evidence of seasonality? If so, describe the seasonal pattern.
+
+```{r}
+monthplot(ausbeer)
+
+plot(window(ausbeer, start = 2000, end = 2010))
+
+```
+
+There is evidence of seasonality, similar spikes in beer production appearing throughout the years. If we look into the time frame of 2000 to 2010, there is a very distinct up and down pattern in the data. 
+
+### 4. Does the variability appear constant over time? Explain what you see in the plot and whether a transformation might be appropriate.
+
+I would say that the variability for this data isnt the most constant over time. While the data moves in visible season's, the distribution of the data over time doesnt stay the same with some noticeable spikes and dips. Random irregular flucuations. 
+
+### 5. Are there any observations that you would regard as unusual? Identify them and explain why they attract attention.
+
+
+### 6. Plot the series by season (for example, using a seasonal plot). What does this reveal that is less obvious in the ordinary time-series plot?
+
+
+### 7. Plot the seasonal subseries. Which quarters have the highest and lowest typical values? Is the seasonal pattern stable over time?
+
+
+### 8. Would you detrend or transform the series before modelling it? Give a visual argument for your answer. Do not fit a model

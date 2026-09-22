@@ -12,4 +12,9 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Imagine that you are studying the time between successive arrivals of customers at a
+service desk. You collect data, the times between arrivals, and decide that an exponential
+distribution is a reasonable model for these observations.
+\
+
 # Exercise 1:
