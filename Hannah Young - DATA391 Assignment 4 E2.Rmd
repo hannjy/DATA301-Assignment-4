@@ -80,9 +80,14 @@ Because of the differing directions, there is no solid evidence of a long-term t
 ### 3. Is there evidence of seasonality? If so, describe the seasonal pattern.
 
 ```{r}
-monthplot(ausbeer)
+plot(window(ausbeer, start = 1956, end = 1958),
+     main = "1956 - 1958 Seasonality")
 
-plot(window(ausbeer, start = 2000, end = 2010))
+plot(window(ausbeer, start = 1980, end = 1982),
+     main = "1980 - 1982 Seasonality")
+
+plot(window(ausbeer, start = 2000, end = 2002),
+     main = "2000 - 2002 Seasonality")
 
 ```
 
@@ -90,15 +95,27 @@ There is evidence of seasonality, similar spikes in beer production appearing th
 
 ### 4. Does the variability appear constant over time? Explain what you see in the plot and whether a transformation might be appropriate.
 
-I would say that the variability for this data isnt the most constant over time. While the data moves in visible season's, the distribution of the data over time doesnt stay the same with some noticeable spikes and dips. Random irregular flucuations. 
+I would say that the variability for this data isnt the most constant over time. While the data moves in visible season's, the distribution of the data over time doesnt stay the same with some noticeable spikes and dips. Random irregular fluctuations. 
 
 ### 5. Are there any observations that you would regard as unusual? Identify them and explain why they attract attention.
 
+- Large spikes in 1990
+- Significant dip in 2005 
 
 ### 6. Plot the series by season (for example, using a seasonal plot). What does this reveal that is less obvious in the ordinary time-series plot?
+
+```{r}
+decomp <- decompose(ausbeer)
+plot(decomp)
+```
 
 
 ### 7. Plot the seasonal subseries. Which quarters have the highest and lowest typical values? Is the seasonal pattern stable over time?
 
+```{r}
+monthplot(ausbeer)
+```
+
+Quarter 4 has the highest typical values with a max of 
 
 ### 8. Would you detrend or transform the series before modelling it? Give a visual argument for your answer. Do not fit a model
