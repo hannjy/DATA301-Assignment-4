@@ -37,85 +37,281 @@ head(ausbeer,8)
 ```
 
 This is an ordered, discrete time series. The order of the data matters, as it is recorded yearly in quarters and is equally spaced. Regular sampling. 
-
-
-
-
-### 1. What is the frequency of the series? How can you determine this from the data
-and/or the time-series plot?
-
-The frequency is four. Data was collected four times every year from 1956 to 2010 in each quarter. We can visualize this in the 'monthly' plot of the data, where there are four trends visualized. 
+\
 
 ```{r}
-pander(ausbeer)
+methods(class = "ts")
+forecast(ausbeer)
+
+df <- data.frame(
+  year = time(ausbeer),
+  quarter = cycle(ausbeer),
+  beer = as.numeric(ausbeer)
+)
+
+tsp(ausbeer)
+```
+
+### 1. What is the frequency of the series? How can you determine this from the data and/or the time-series plot?
+\
+
+The frequency is four. Data was collected four times every year from 1956 to 2010 in each quarter. We can see this in the data, where each year has four corresponding columns. There is some missing data for specific quarters, such as 2008 missing data from Q1 and Q2, alongside data for 2010 only being collected up to Q2.
+
+```{r}
+pander(head(ausbeer, 16))
+pander(tail(ausbeer, 8))
 ```
 
 
 ### 2. Describe the overall behavior of the series. Is there evidence of a long-term trend?
-
-```{r}
-plot(ausbeer,
-     xlab = "Time",
-     ylab = "Total Quarterly Production of Beer")
-
-average_trend <- stats::filter(ausbeer, rep(1/4, 4), sides = 2)
-lines(average_trend, col = "red", lwd = 2)
-
-legend(
-  "bottomright",
-  legend = c("Trend of entire database", "Moving average"),
-  col = c("black","red"),
-  lwd = c(1,2),
-  bty = "n"
-)
-```
-
-Until around 1975 there was a positive, increasing trend in the data where the total quarterly production of beer increased throughout the years despite differences in individual quarters. However this increasing trend stopped and plateaued slightly from ~1975 to 1990. From 1990, the total quarterly production of beer has started to decrease slightly. 
 \
 
-Because of the differing directions, there is no solid evidence of a long-term trend. 
+```{r}
+average_trend <- stats::filter(ausbeer, rep(1/4, 4), sides = 2)
+
+beer_data_trend <- data.frame(
+  Time = time(ausbeer),
+  Beer = as.numeric(ausbeer),
+  MovingAverage = as.numeric(average_trend)
+)
+
+ggplot(beer_data_trend, aes(x = Time)) +
+  geom_line(aes(y = Beer, colour = "Beer Production")) +
+  geom_line(aes(y = MovingAverage, colour = "Moving Average"), linewidth = 1)+
+  scale_colour_manual(
+    values = c(
+      "Beer Production" = "black",
+      "Moving Average" = "red"
+    ))+
+  labs(
+    x = "Time",
+    y = "Total production of Beer",
+    colour = ""
+  ) + theme_minimal()
+  
+  
+#plot(ausbeer,
+#     xlab = "Time",
+#     ylab = "Total Production of Beer")
+
+#average_trend <- stats::filter(ausbeer, rep(1/4, 4), sides = 2)
+#lines(average_trend, col = "red", lwd = 2)
+
+#legend(
+#  "bottomright",
+#  legend = c("Trend of entire database", "Moving average"),
+#  col = c("black","red"),
+#  lwd = c(1,2),
+#  bty = "n"
+#)
+```
+\
+The ausbeer dataset shows a strong seasonal pattern with strong spikes and dips in the data that re-occur consistently throughout the years. There is evidence of long-term trends, however it changes directions over the time period. From 1975 to the late 1970's/ early 1980's, the total production of beer increases to around 500 beers. From this production plateus out for a few years, but generally decreases from 1990 to the most recent data in 2010. The series does not follow one distinct trend for its entire length, however due to the length of the data there are some existing long-term trends. 
 \
 <br>
 
 ### 3. Is there evidence of seasonality? If so, describe the seasonal pattern.
+\
 
 ```{r}
-plot(window(ausbeer, start = 1956, end = 1958),
-     main = "1956 - 1958 Seasonality")
+beer_56_58 <- data.frame(
+  Time = time(window(ausbeer, start = 1956, end = 1958)),
+  Beer = as.numeric(window(ausbeer, start = 1956, end = 1958)))
 
-plot(window(ausbeer, start = 1980, end = 1982),
-     main = "1980 - 1982 Seasonality")
+beer_80_82 <- data.frame(
+  Time = time(window(ausbeer, start = 1980, end = 1982)),
+  Beer = as.numeric(window(ausbeer, start = 1980, end = 1982)))
 
-plot(window(ausbeer, start = 2000, end = 2002),
-     main = "2000 - 2002 Seasonality")
+beer_00_02 <- data.frame(
+  Time = time(window(ausbeer, start = 2000, end = 2002)),
+  Beer = as.numeric(window(ausbeer, start = 2000, end = 2002)))
 
+p1 <- ggplot(beer_56_58, aes(x = Time, y = Beer)) +
+  geom_line(colour = "black")+
+  labs(
+    title = "1956 - 1958 Seasonality",
+    x = "Time",
+    y = "Beer production"
+  ) + theme_minimal()
+
+p2 <- ggplot(beer_80_82, aes(x = Time, y = Beer)) +
+  geom_line(colour = "black")+
+  labs(
+    title = "1980 - 1982 Seasonality",
+    x = "Time",
+    y = "Beer production"
+  ) + theme_minimal()
+
+p3 <- ggplot(beer_00_02, aes(x = Time, y = Beer)) +
+  geom_line(colour = "black")+
+  labs(
+    title = "2000 - 2002 Seasonality",
+    x = "Time",
+    y = "Beer production"
+  ) + theme_minimal()
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, ncol = 1)
+
+#par(mfrow = c(1,3))
+
+#plot(window(ausbeer, start = 1956, end = 1958),
+           #main = "1956 - 1958 Seasonality")
+#plot(window(ausbeer, start = 1980, end = 1982),
+           #main = "1980 - 1982 Seasonality")
+#plot(window(ausbeer, start = 2000, end = 2002),
+           #main = "2000 - 2002 Seasonality")
+
+decomp <- decompose(ausbeer)
+
+seasonal_data <- data.frame(
+  Time = time(decomp$seasonal),
+  Seasonal = as.numeric(decomp$seasonal)
+)
+
+ggplot(seasonal_data, aes(x =Time, y = Seasonal)) +
+  geom_line(colour = "black") +
+  labs(
+    title = "Seasonal Component of Beer Production",
+    x = "Time",
+    y = "Seasonal effect"
+  ) + theme_minimal()
+
+#plot(decomp$seasonal)
 ```
 
-There is evidence of seasonality, similar spikes in beer production appearing throughout the years. If we look into the time frame of 2000 to 2010, there is a very distinct up and down pattern in the data. 
+There is evidence of seasonality, similar spikes in beer production appearing throughout the years. Taking 2-year snapshots at random spots in the timeline, we can see that it follows a re-occurring up and down pattern throughout the years. While the exact values are not consistent, the shape stays around the same. The largest spike in beer production occurs in quarter 4, which then decreases throughout the following year until spiking back up again in quarter 4. 
+
+Taking a look at the seasonal graph for the entire series, this pattern repeats consistently for the entire time period providing evidence towards strong seasonality for the data. 
+\
 
 ### 4. Does the variability appear constant over time? Explain what you see in the plot and whether a transformation might be appropriate.
+\
 
-I would say that the variability for this data isnt the most constant over time. While the data moves in visible season's, the distribution of the data over time doesnt stay the same with some noticeable spikes and dips. Random irregular fluctuations. 
+For determining constant variability we want to look at the size of the fluctuations in number of beers produced. Looking back at the first plot showing the overall behavior of the series, when beer production was relatively low through 1950 to ~1975 the fluctuations are smaller and more constant in size. When the production reached its peak and averaged around 500 beers through the 1980's to 1995 we can see greater fluctuations around the trend become bigger and irregular. In the more recent years when the number of beers produced decreases, the size of the fluctuations appear to decrease slightly as-well. 
+
+\
+```{r}
+random_data <- data.frame(
+  Time = time(decomp$random),
+  Random = as.numeric(decomp$random))
+
+ggplot(random_data, aes(x = Time, y = Random)) +
+  geom_line(colour = "black") +
+  labs(
+    title = "Random Component of Beer Production",
+    x = "Time",
+    y = "Random effect"
+  ) + theme_minimal()
+
+#plot(decomp$random)
+```
+\
+The decomposition plot of irregular noise in the data shows this slightly as-well, with the large spikes in the data being within the same time period as the greater fluctuations. 
+
+This all suggests that the variability of the data does not stay completely constant over time. 
+
+A transformation might be appropriate if the variability of the data is actually increasing with the level of the series, instead of being random. This would help stabilize the variance as we aim for equal variance (homoscedasticity) across a data set. 
+\
 
 ### 5. Are there any observations that you would regard as unusual? Identify them and explain why they attract attention.
+\
 
-- Large spikes in 1990
-- Significant dip in 2005 
+Looking back at the decomposition plot, there six observations that stand out and appear to be unusual. 
+
+There are large positive and negative deviations from 1977 to 1993 that appear to be significantly further from 0. To identify them, I used the constraint of random values greater than 35. The random component represents the aspect of beer production that isn't already explained by estimated trend or seasonality. This is useful for identifying unusual observations because large/small remainder values indicate an observation that was different from what would be expected based on the current trend and seasonality for that time. 
+\
+
+```{r}
+random_data$unusual <- abs(random_data$Random)> 35
+
+ggplot(random_data, aes(x = Time, y = Random)) +
+  geom_line() +
+  geom_hline(yintercept = 0)+
+  geom_point(
+    data = subset(random_data, unusual),
+    colour="red",
+    size = 3) +
+  labs(
+    title = "Random plot from 1956 to 2010",
+    x = "Time",
+    y = "Random"
+  ) + theme_minimal()
+
+strange_wind <- window(decomp$random, start = 1956, end = 2010)
+
+#plot(strange_wind,
+#     main = "Window of Random plot from 1977 to 1993",
+#     xlab = "Time",
+#     ylab = "Random")
+
+#abline(h = 0)
+#unusual <- which(abs(strange_wind) > 35)
+
+#points(time(strange_wind)[unusual],
+#       strange_wind[unusual],
+#       pch = 19,
+#       cex = 1.5,
+#       col = "red")
+
+unusual2 <- !is.na(strange_wind)& abs(strange_wind) > 35
+#strange wind has na values so had to add !is.na
+
+specific_obs <- data.frame(
+  Year = floor(time(strange_wind)[unusual2]),
+  Quarter = cycle(strange_wind)[unusual2],
+  BeerProduced = window(ausbeer, start = 1956, end = 2010)[unusual2],
+  Remainder = strange_wind[unusual2]
+  )
+
+pander(specific_obs)
+```
+\
 
 ### 6. Plot the series by season (for example, using a seasonal plot). What does this reveal that is less obvious in the ordinary time-series plot?
+\
 
 ```{r}
-decomp <- decompose(ausbeer)
-plot(decomp)
+ggseasonplot(ausbeer) +
+  labs(
+    title = "Seasonal plot of quarterly beer production",
+    x = "Quarter",
+    y = "Beers produced"
+  ) + guides(colour = guide_legend(reverse = FALSE)) +theme_minimal()
 ```
 
+The season plot of the four quarters give a good visualization of the shape the data follows compared to the ordinary time-series plot. We can see the curve that the data follows from quarter 1 to quarter 4. Because there are alot of recorded years in this time series identifying individual dates is slightly difficult but it displays the trend that was observed earlier; the number of beers produced per year increased until around the 1980's, then started to slightly decrease. 
+\
 
 ### 7. Plot the seasonal subseries. Which quarters have the highest and lowest typical values? Is the seasonal pattern stable over time?
+\
 
 ```{r}
-monthplot(ausbeer)
+ggsubseriesplot(ausbeer)+
+  labs(
+    title = "Seasonal Subseries of Beer Production by Quarter",
+    y = "Beer production",
+    x = "Quarter"
+  ) +theme_minimal()
 ```
 
-Quarter 4 has the highest typical values with a max of 
+The seasonal subseries plot shows that quarter 4 has the highest typical value of beer production, and quarter 2 has the lowest. Quarter 1 and quarter 3 have typical values between these, with the final ranking from highest to lowest being; quarter 4, quarter 1, quarter 3 and quarter 2. 
+\
+The seasonal pattern appears to be relatively stable over time because the ordering of the quarters typical values is visible throughout the dataset (like in the seasonal plot). Although the overall production amount of beer changes over time, the seasonal pattern remains constant. 
+\
 
 ### 8. Would you detrend or transform the series before modelling it? Give a visual argument for your answer. Do not fit a model
+\
+
+I would consider de-trending the series to improve its stationarity. The time series shows an increasing and decreasing long-term trend in beer production which tells us the mean level of the series changes over time. The variance also does not remain constant over time, with specific periods having greater fluctuation than others. De-trending the series before modelling could help improve the accuracy and quality of results because the mean and variance wont be impacted by long-term trends. 
+\
+
+```{r}
+#par(mfrow = c(2,1))
+plot(ausbeer, main = "Beer Production with no Transformation")
+plot(log(ausbeer), main = "Beer Production with Log Transformation")
+```
+
+Another method to improve the variance would be to transform the series with a log transformation. This stabilizes the variance by compressing larger values more than smaller ones, reducing the heteroscedasticity of the data. While we can see in the visualization that the previously noted areas of greater variance (~1990's) have been almost "smushed down", the general shape of the data has not changed significantly. This could be because the existing variance of the data is not scaled proportionally with the mean so applying the log transformation does not greatly improve the variance.
+
+Since de-trending and transforming can both be applied to a time series I would recommend de-trending the series first to see if that improves the shape of the mean and variance, then transform with a log transformation if it would add some meaningful benefit when going on to model the data. 
