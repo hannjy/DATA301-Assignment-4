@@ -1,0 +1,55 @@
+---
+title: "DATA301 Assignment 4"
+subtitle: "Exercise 1"
+author: "Hannah Young, 300662592"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Imagine that you are studying the time between successive arrivals of customers at a service desk. You collect data, the times between arrivals, and decide that an exponential distribution is a reasonable model for these observations.
+\
+
+#### (a). There are several ways of computing order statistics, e.g., the quartiles that you need for $\hat{\lambda}_{IQR}$(X). Read and summarise the analysis of alternatives made by Wicklin (2017). This article gives you a link to the article that sparked the discussion (Hyndman & Fan, 1996), and we strongly recommend you also read it. Which type of order statistics would you use and why? Which is the default type of order statistics your version of R/Python uses?
+
+**I could only find this blog post by Rick Wicklin about Sample quantiles: A comparison of 9 definitions: https://blogs.sas.com/content/iml/2017/05/24/definitions-sample-quantiles.html**
+
+
+
+#### (b). You suspect that $\hat{\lambda}_{IQR}$ is biased, so derive and implement a first-order bootstrap bias corrected estimator based on $\hat{\lambda}_{IQR}$. Denote it $\tilde{\lambda}$. You may fix the number of bootstrap replications in B = 200 for every input sample.
+\
+Using bootstrap to fix a dodgy estimator. 
+
+```{r, eval = FALSE}
+set.seed(301)
+B = 200
+
+quant1 <- quantile(x, 0.25)
+quant3 <- quantile(x, 0.75)
+lambda_hat <- log(3) / (quant3 - quant1)
+
+#doing a bootstrap
+lambda_boot <- numeric(B)
+
+for (b in 1:B){
+  x_boot <- sample(x, size = length(x), replace = TRUE)
+  quant1_boot <- quantile(x_boot, 0.25)
+  quant3_boot <- quantile(x_boot, 0.75)
+  lambda_boot[b] <- log(3) / (quant3_boot - quant1_boot)
+}
+
+lambda_bar_boot <- mean(lambda_boot)
+
+lambda_tilde <- 2 * lambda_hat - lambda_bar_boot
+```
+
+#### (c). Make a Monte Carlo experiment comparing these three estimators. Use as parameter space $\Lambda \times N$ , where $\lambda \: \epsilon \: \Lambda$ = {.1, 1, 10} and $n \: \epsilon \: N$ = {5, 30, 100}. Use the mean square error as the sole metric for your analysis. Report your results. Justify your choice(s) of the number of replications for each $\lambda$ and each $n$. You may want to check the book by Robert & Casella (2009); it is available in our library
+
+100 reps? 
+
+Tilda lambda vs 
